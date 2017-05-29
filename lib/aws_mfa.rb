@@ -128,9 +128,13 @@ class AwsMfa
   end
 
   def request_code_from_user
-    puts 'Enter the 6-digit code from your MFA device:'
-    code = $stdin.gets.chomp
-    raise Errors::InvalidCode, 'That is an invalid MFA code' unless code =~ /^\d{6}$/
+    puts 'Getting access code from Yubikey...'
+    output = `ykman oath code "Amazon Web Services"`.chomp
+    if output.length > 6 && output =~ / \d{6}$/
+      code = output.split(' ')[-1]
+    else
+      raise Errors::InvalidCode, 'That is an invalid MFA code'
+    end
     code
   end
 
